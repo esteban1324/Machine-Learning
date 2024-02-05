@@ -17,8 +17,13 @@ def plot_data(X):
     x_coord_class2 = [points[0] for points in X[3:]]
     y_coord_class2 = [points[1] for points in X[3:]]
     
-    plt.scatter(x_coord_class1, y_coord_class1, color='blue')
-    plt.scatter(x_coord_class2, y_coord_class2, color='red')
+    plt.xlabel('x')
+    plt.ylabel('y')
+       
+    plt.scatter(x_coord_class1, y_coord_class1, color='blue', label='Class 1')
+    plt.scatter(x_coord_class2, y_coord_class2, color='red', label='Class 2')
+    plt.legend(loc = 'upper left')
+    
     
     plt.show()
 if __name__ == "__main__":
