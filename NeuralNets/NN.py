@@ -1,6 +1,8 @@
 # making a neural network from scratch with n layers
 
 import numpy as np # type: ignore
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt # type: ignore
 import pandas as pd # type: ignore
 
@@ -18,6 +20,7 @@ class NeuralNetwork:
         self.learning_rate = learning_rate
         self.weights = []
         self.bias = []
+        self.losses = []
         
         # initialize the weights and biases for all the layers
         layer_sizes = [self.input_layer_size] + self.hidden_layers_sizes + [self.outputs_layer_size]
@@ -73,38 +76,40 @@ class NeuralNetwork:
         for i in range(self.epochs):
             activations =  self.forward_propagation(X)
             self.back_propagation(activations, y)
-            
+            loss = self.loss(y, activations[-1])
+            self.losses.append(loss)
+    
     def predict(self, X):
         return self.forward_propagation(X)[-1]
 
 # plotting functions for NN
 
+#plot learning rate 
+def plot_learning_rate(nn):
+    plt.plot(range(nn.epochs), nn.losses)
+    plt.xlabel("epochs")
+    plt.ylabel("loss")
+    plt.title("learning rate")
+    plt.show()
 
+# plot loss rate
+def plot_decision_boundary(nn):
+    pass
 
-
-
-
-
-
-
-
-
-
+# xor dataset
+X = np.array([[1, 1],
+    [1, 0],
+    [0, 1],
+    [0, 0]])
+y = np.array([[0], [1], [1], [0]])
 
 # main function
 if __name__ == "__main__":
 
-    # xor dataset
-    X = np.array([[1, 1],
-    [1, 0],
-    [0, 1],
-    [0, 0]])
-    y = np.array([[0], [1], [1], [0]])
-
     # create a neural network
-    nn = NeuralNetwork(2, [2], 1, 1000, 0.1)
+    nn = NeuralNetwork(2, [2], 1, 2000, 0.1)
     nn.train(X, y)
-
+    plot_learning_rate(nn)
 
 
 
