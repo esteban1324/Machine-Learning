@@ -10,97 +10,101 @@ import pandas as pd # type: ignore
 
 class NeuralNetwork:
     
-    def __init__(self, inputs, hidden_layers_units:int, outputs, epochs:int, learning_rate:float):
-        self.inputs = inputs
-        self.hidden_layers_units = hidden_layers_units
-        self.outputs = outputs
+    def __init__(self, input_layer_size, hidden_layers_sizes, outputs_layer_size, epochs:int, learning_rate:float):
+        self.input_layer_size = input_layer_size
+        self.hidden_layers_sizes = hidden_layers_sizes
+        self.outputs_layer_size = outputs_layer_size
         self.epochs = epochs
         self.learning_rate = learning_rate
         self.weights = []
         self.bias = []
         
-        # initialize the hidden weights and biases, 
-        # using random values and dimensions which are the number of features in the input data and the number of hidden units
-       
-        self.hidden_weights = np.random.randn(inputs.shape[1], self.hidden_layers_units)
-        self.hidden_biases = np.random.randn(1, self.hidden_layers_units)
-        
-       
-        # output weights and biases
-        self.output_weights = np.random.randn(self.hidden_layers_units, outputs.shape[1])
-        self.output_biases = np.random.randn(1, outputs.shape[1])
-        
-        
-        
-
+        # initialize the weights and biases for all the layers
+        layer_sizes = [self.input_layer_size] + self.hidden_layers_sizes + [self.outputs_layer_size]
+        # we have NN list with units for each layer, initialize the weights and biases with each unit.
+        for i in range(len(layer_sizes) - 1):
+            self.weights.append(np.random.randn(layer_sizes[i], layer_sizes[i+1]))
+            self.bias.append(np.random.rand(1,layer_sizes[i+1]))
+            
     def sigmoid(self, x):
         return 1/(1+np.exp(-x))
     
     def sigmoid_derivative(self, x):
         return x*(1-x)
     
-    
     # forward propagation which is the process of moving the input data through the network to get the output
     # multiply the input data by the weights and add the biases from the hidden layers to the output layer
     def forward_propagation(self, inputs): 
-      
-        print("input shape: ", inputs.shape)
-        print("hidden weights shape: ", self.hidden_weights.shape)
-        print("hidden biases shape: ", self.hidden_biases.shape)
+        activated_inputs = [inputs]
+
+        for i in range(len(self.weights)):
+            weighted_sum = np.dot(activated_inputs[-1], self.weights[i]) + self.bias[i]
+            activation = self.sigmoid(weighted_sum)
+            activated_inputs.append(activation)
         
-        weighted_sum = np.dot(inputs, self.hidden_weights) + self.hidden_biases
-        hidden_output = self.sigmoid(weighted_sum)
-        
-        output_layer_wsum = np.dot(hidden_output, self.output_weights) + self.output_biases
-        output = self.sigmoid(output_layer_wsum)
-    
-        return output
+        return activated_inputs
 
     # mse loss function
     def loss(self, y_true, y_pred):
         return np.mean((y_true - y_pred)**2)
     
     # back propagation is the process of updating the weights and biases of the network to minimize the loss
-    def back_propagation(self):
-        pass
+    def back_propagation(self, activated_inputs, y_true):
+        # get error btw the true outcome and activations 
+        errors = [y_true - activated_inputs[-1]]
+
+        # compute gradient from right to left with general formula 
+        for i in reversed(range(len(self.weights) - 1)):
+            delta = errors[-1].dot(self.weights[i+1].T) * self.sigmoid_derivative(activated_inputs[i+1])
+            errors.append(delta)
+        
+        errors.reverse()
+        
+        # update weights and biases with errors 
+        for i in range(len(self.weights)):
+            self.weights[i] += activated_inputs[i].T.dot(errors[i]) * self.learning_rate
+            self.bias[i] += np.sum(errors[i], axis=0) * self.learning_rate
+            
+            
     
     # this function is used to train the Neural Network
-    def train (self):
-        pass
-    
-
-    
-    # feed forward propagation
-
-
-    
+    def train (self, X, y):
         
-    
-    
-    
+        for i in range(self.epochs):
+            activations =  self.forward_propagation(X)
+            self.back_propagation(activations, y)
+            
+    def predict(self, X):
+        return self.forward_propagation(X)[-1]
 
-# what do we need to do?
-# 1. Initialize the parameters
-# 2. Forward Propagation
-# 3. Compute the cost
-# 4. Backward Propagation
-# 5. Update the parameters
-# 6. Repeat 2-5 until convergence
+# plotting functions for NN
+
+
+
+
+
+
+
+
+
+
+
 
 
 # main function
-__name__ == "__main__"
+if __name__ == "__main__":
 
-# xor dataset
-inputs = np.array([[1, 1],
-  [1, 0],
-  [0, 1],
-  [0, 0]])
-outputs = np.array([[0], [1], [1], [0]])
+    # xor dataset
+    X = np.array([[1, 1],
+    [1, 0],
+    [0, 1],
+    [0, 0]])
+    y = np.array([[0], [1], [1], [0]])
 
-# create a neural network
-nn = NeuralNetwork(inputs, 2, outputs, 1000, 0.1)
-nn.forward_propagation(inputs)
+    # create a neural network
+    nn = NeuralNetwork(2, [2], 1, 1000, 0.1)
+    nn.train(X, y)
+
 
 
 
