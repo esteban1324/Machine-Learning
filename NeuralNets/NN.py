@@ -1,5 +1,6 @@
 # making a neural network from scratch with n layers
 
+#using wsl so TkAgg is needed.
 import numpy as np # type: ignore
 import matplotlib
 matplotlib.use('TkAgg')
@@ -94,7 +95,18 @@ def plot_learning_rate(nn):
 
 # plot loss rate
 def plot_decision_boundary(nn):
-    pass
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+
+    xx, yy = np.meshgrid(np.arange(x_min, x_max,0.1), np.arange(y_min, y_max, 0.1))
+    Z = nn.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    
+    plt.contourf(xx, yy, Z, alpha=0.8, cmap=plt.cm.Paired)
+    
+    plt.scatter(X[:, 0], X[:, 1], c=y[:, 0], s=40, edgecolor='k')
+    plt.show()
+
 
 # xor dataset
 X = np.array([[1, 1],
@@ -110,7 +122,7 @@ if __name__ == "__main__":
     nn = NeuralNetwork(2, [2], 1, 2000, 0.1)
     nn.train(X, y)
     plot_learning_rate(nn)
-
+    plot_decision_boundary(nn)
 
 
 
