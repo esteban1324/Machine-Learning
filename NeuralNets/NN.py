@@ -33,7 +33,7 @@ class NeuralNetwork:
     
     def forward_propagation(self, inputs): 
         activated_inputs = [inputs]
-
+        
         for i in range(len(self.weights)):
             weighted_sum = np.dot(activated_inputs[-1], self.weights[i]) + self.bias[i]
             activation = self.sigmoid(weighted_sum)
@@ -48,7 +48,6 @@ class NeuralNetwork:
     # back propagation is the process of updating the weights and biases of the network to minimize the loss
     def back_propagation(self, activated_inputs, y_true):
         errors = [y_true - activated_inputs[-1]]
-
         for i in reversed(range(len(self.weights) - 1)):
             delta = errors[-1].dot(self.weights[i+1].T) * self.sigmoid_derivative(activated_inputs[i+1])
             errors.append(delta)
@@ -97,7 +96,7 @@ X = np.array([[1, 1],
 y = np.array([[0], [1], [1], [0]])
 
 if __name__ == "__main__":
-    nn = NeuralNetwork(2, [2], 1, 2000, 0.1)
+    nn = NeuralNetwork(2, [2], 1, 2800, 0.1)
     nn.train(X, y)
     plot_learning_rate(nn)
     plot_decision_boundary(nn)
